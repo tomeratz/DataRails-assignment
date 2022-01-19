@@ -30,56 +30,53 @@ const changes = [
     { type: 'FILE_TYPE_CHANGE', extension: 'xlsx' },
 ];
 
-let flattenArr = []
+const flattenArr = []
 
 // flatten nested changes
-let chechNested = (obj) => {
-    let n = 0
-    for (let item of Object.keys(obj)) {
+const chechNested = (obj) => {
+    let n = 0;
+    let key = Object.keys(obj);
+    for (let item of key) {
         if (typeof obj[item] !== "object") {
-            n++
-            if (n === Object.keys(obj).length) {
-                return true
+            if (++n === key.length) {
+                return true;
             }
         }
         else {
             if (chechNested(obj[item]) === true) {
-                flattenArr.push(obj[item])
+                flattenArr.push(obj[item]);
             }
         }
     }
-    return flattenArr
-}
+    return flattenArr;
+};
 
 // write changes to fileState obj
-let executeChange = (change) => {
-    type = change.type
+const executeChange = (change) => {
+    type = change.type;
     param = Object.keys(change)[1]
-    fileState[param] = change[param]
-    return type
-}
+    fileState[param] = change[param];
+    return type;
+};
 
 const calculateState = (changes) => {
     console.log('before', fileState);
 
-    let flattenObj = chechNested(changes).reverse();
-    let chagesObj = {}
-    let n = 0
+    const flattenObj = chechNested(changes).reverse();
+    const chagesObj = {};
+    let n = 0;
 
     flattenObj.forEach(flattenChange => {
-        let changeType = flattenChange.type
-        if (chagesObj[changeType]) {
-        } else {
-            executeChange(flattenChange)
-            chagesObj[changeType] = n
-            n++
-        }
+        let changeType = flattenChange.type;
+        if (!chagesObj[changeType]) {
+            executeChange(flattenChange);
+            chagesObj[changeType] = n;
+            n++;
+        };
     });
-    fileState.changesList = Object.keys(chagesObj)
+    fileState.changesList = Object.keys(chagesObj);
     console.log('after', fileState);
     console.log('app', time - Date.now());
-
-
 };
 
-calculateState(changes)
+calculateState(changes);
